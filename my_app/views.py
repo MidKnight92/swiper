@@ -68,9 +68,17 @@ def register(request):
 def search(request):
     # User made a GET request scraping results for particular item via Walmart.com
     if request.method == "GET":
+
+        # Get headers
+        header = {
+            'User-Agent': request.headers['User-Agent'],
+            'referer': request.headers['referer']
+        }
+    
+
         # Get user input
         item_searched = request.GET["item"]
- 
+       
         # Add item searched into model
         ## models.Search.objects.create(search=item)
 
@@ -78,15 +86,16 @@ def search(request):
         urlify_item_searched = quote_plus(item_searched)
 
         URL = f'https://www.walmart.com/search/?query={urlify_item_searched}'
-        response = requests.get(URL)
-
+        response = requests.get(URL, headers=header)
         data = response.text
      
         # Create parsed data
-        soup = BeautifulSoup(data, features='html.parser')
+        soup = BeautifulSoup(data, 'html.parser')
+        # print(soup)
 
         # images
         item_image_urls = soup.select('#searchProductResult img')
+        
         item_image_urls = [img['src'] for img in item_image_urls]
         item_image_urls = [img.split('?')[0] for img in item_image_urls]
 
@@ -105,7 +114,7 @@ def search(request):
         list_of_item_tuples = []
         for (title, price, image) in itertools.zip_longest(item_titles, item_prices, item_image_urls, fillvalue=None):
             list_of_item_tuples.append((title, price, image))
-
+        
         return render(request, 'my_app/search.html', {
             "item_searched": item_searched,
             "items": list_of_item_tuples

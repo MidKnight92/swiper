@@ -1,26 +1,38 @@
-
 {% load static %}
 <nav class="indigo darken-4">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#!" class="brand-logo center"><img src="{% static 'my_app/fox.png' %}" alt="fox logo" width="auto" height="35vh"/></a>
-            <a href="#" class="brand-logo">Swiper</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="/">Home</a></li>
-            </ul>
-        </div>
+  <div class="container">
+    <div class="nav-wrapper">
+      <a href="#!" class="brand-logo center"
+        ><img
+          src="{% static 'my_app/logo/fox.png' %}"
+          alt="fox logo"
+          width="auto"
+          height="35vh"
+      /></a>
+      <a href="#" class="brand-logo">Swiper</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="/">Home</a></li>
+      </ul>
     </div>
+  </div>
 </nav>
-    
-      
+
 <nav class="indigo darken-3">
-<div class="container nav-wrapper"> 
-        <form action="{% url 'search' %}" method="GET">
-        <div class="input-field">
-            <input id="search" type="search" name="item" placeholder="Swipe the best deals here" required>
-            <label class="label-icon" for="search"><i class="material-icons">search</i></label>
-            <i class="material-icons">close</i>
-        </div>
-        </form>
-    </div>
+  <div class="container nav-wrapper">
+    <form action="{% url 'search' %}" method="GET">
+      <div class="input-field">
+        <input
+          id="search"
+          type="search"
+          name="item"
+          placeholder="Swipe the best deals here"
+          required
+        />
+        <label class="label-icon" for="search"
+          ><i class="material-icons">search</i></label
+        >
+        <i class="material-icons">close</i>
+      </div>
+    </form>
+  </div>
 </nav>
