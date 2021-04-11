@@ -1,22 +1,24 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from requests.compat import quote_plus
 from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import User, Search 
 from django.views.decorators.csrf import csrf_exempt
 import time
 import requests
 import json
 import itertools
-from sqlalchemy.sql import expression
+from sqlalchemy.sql import expression # to be removed 
 from my_app.price import get_current_price, assess_price
 from my_app.contact import send_email
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from .forms import LoginForm, SignupForm
+
+User = get_user_model()
 
 # Change to an empty list
 # have users sign up to find prices at there favorite stores
@@ -31,41 +33,58 @@ def track(url):
     # time.sleep(2)
 
 # Views
-def index(request):
+def index_view(request):
     return render(request, 'my_app/index.html')
 
-def register(request):
+def signup_view(request):
+    message = ''
     # User made a post request via creating an account
     if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            password2 = form.cleaned_data.get('password2')
+            email = form.cleaned_data.get('email')
+            phone_number = form.cleaned_data.get('phone_number')
+            extra_fields = {"phone_number" : phone_number}
+            user = User.objects.create_user(username=username, email=email,  password=password)
+            print('sign up successful')
+            login(request, user)
+            # return redirect('index_view')
+        else:
+            message = 'Invalid Sign Up'
+    form = SignupForm()
+    context = {'form': form, 'message': message}
+    # User made a GET request or invalid POST render signup form 
+    return render(request, "my_app/registration/signup.html", context)
 
-        # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
-        if password != confirmation:
-            return render(request, "my_app/register.html", {
-                "message": "Passwords must match."
-            })
+def login_view(request):
+    message = ''
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            login(request, user)
+            print('log in successful')
+            return redirect("/")
+        else:
+            print('log in failed')
+            message = "Log In Failed"
+    form = LoginForm()
+    context = {'form': form, 'message': message}
+    return render(request, "my_app/registration/login.html", context)
 
-        # Attempt to create new user
-        try:
-            user = User.objects.create_user(username, email, password)
-            user.save()
-        # Error - user exist
-        except IntegrityError:
-            return render(request, "my_app/register.html", {
-                "message": "Username already taken."
-            })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
 
-    # User made a GET request
-    else:
-        return render(request, "my_app/register.html")
+def logout_view(request):
+    logout(request)
+    return redirect('/accounts/login')
 
+# TODO add login required declaration
 @csrf_exempt
-def search(request):
+def search_view(request):
     # User made a GET request scraping results for particular item via Walmart.com
     if request.method == "GET":
 
@@ -75,7 +94,6 @@ def search(request):
             'referer': request.headers['referer']
         }
     
-
         # Get user input
         item_searched = request.GET["item"]
        
@@ -104,7 +122,7 @@ def search(request):
         item_price_spans = soup.find_all('span', {'class': 'price-main-block'})
         item_price_spans = [span.find_all('span',{'class': 'visuallyhidden'}) for span in item_price_spans]
         item_prices = [span[0].text for span in item_price_spans]
-
+        
         # titles
         item_title_divs = soup.find_all('div', {'class': 'search-result-product-title'})
         item_titles = [div.get_text() for div in item_title_divs]
@@ -119,7 +137,7 @@ def search(request):
             "item_searched": item_searched,
             "items": list_of_item_tuples
         })
-
+    # TODO
     # User made a post request by adding an item to their watch list
     elif request.method == 'POST':
         try:
@@ -132,7 +150,7 @@ def search(request):
             print('error')
             # return HttpResponse(status=418)
             return HttpResponse("ERROR") #to be removed
-
+    # TODO
     # User made a put request by removig an item from their watch list
     else:
         try:

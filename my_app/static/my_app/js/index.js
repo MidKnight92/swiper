@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 })
 
-const addOrRemoveItem = (icon) => {
+const addOrRemoveItem = async (icon) => {
     url = window.location.href;
     
     // Get item and price values 
@@ -25,16 +25,15 @@ const addOrRemoveItem = (icon) => {
 
 
         try {
-            fetch(url, {
-                method: 'Post',
+           const data = await fetch(url, {
+                method: 'POST',
                 body: JSON.stringify({
                     "item": item,
                     "price": price,
                     "action": 'add'
                 })
-            }).then( response => {
-                console.log(response);
             })
+            console.log(data.json());
         } catch (error) {
             console.log(error);
         }
@@ -48,19 +47,26 @@ const addOrRemoveItem = (icon) => {
         icon.innerHTML = 'add';
 
         try {
-            fetch(url, {
-                method: 'Put',
+            const data = await fetch(url, {
+                method: 'PUT',
                 body: JSON.stringify({
                     "item": item,
                     "price": price,
                     "action": 'remove'
                 })
-            }).then( response => {
-                console.log(response);
             })
+            console.log(data.json());
         } catch (error) {
             console.log(error);
         }
     }
 }
 
+async function sendRequest(url, method="GET", payload=null){
+    const options = { method };
+    if (payload){
+        options.headers = {"Content-Type": "application/json"};
+        options.body = JSON.stringify(payload);
+        const data = fetch(url, options)
+    }
+}

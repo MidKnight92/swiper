@@ -79,10 +79,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'swiper',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
-AUTH_USER_MODEL = "my_app.User"
+# AUTH_USER_MODEL = "my_app.User"
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -120,4 +124,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGIN_URL = 'accounts/login'
+LOGIN_REDIRECT_URL = '/search' # TODO change to /searches - user saved searches once implemnted
+
+LOGOUT_REDIRECT_URL ='/'
+
+
 STATICFILES_DIR = (os.path.join(BASE_DIR, 'static'),)
+
+

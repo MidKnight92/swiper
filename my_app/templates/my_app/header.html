@@ -11,7 +11,13 @@
       /></a>
       <a href="#" class="brand-logo">Swiper</a>
       <ul id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a href="/">Home</a></li>
+        <li><a href="{% url 'index_view' %}">Home</a></li>
+        {% if user.is_authenticated %}
+          <li><a href="{% url 'logout_view' %}">Log Out</a></li>
+        {% else %}
+          <li><a href="{% url 'signup_view' %}">Sign Up</a></li>
+          <li><a href="{% url 'login_view' %}">Log In</a></li>
+        {% endif %}
       </ul>
     </div>
   </div>
@@ -19,7 +25,7 @@
 
 <nav class="indigo darken-3">
   <div class="container nav-wrapper">
-    <form action="{% url 'search' %}" method="GET">
+    <form action="{% url 'search_view' %}" method="GET">
       <div class="input-field">
         <input
           id="search"

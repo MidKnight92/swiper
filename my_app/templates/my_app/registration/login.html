@@ -1,0 +1,27 @@
+{% extends "my_app/layout.html" %}
+
+{% block title %}Log In{% endblock %}
+
+{% block body %}
+{% load static %}
+{% if message %}
+<div class="container">
+  <div class="centered">
+      <p>{{ message }}</p>
+      <a href="{% url 'login_view' %}">Log In</a>
+  </div>
+</div>
+{% else %}
+<div class="container">
+  <div class="centered">
+      <div class="row">
+          <form class="col s12" method="POST" action="">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn waves-effect waves-light orange darken-4" type="submit" name="action" value="login">Log In</button>
+          </form>
+        </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
